@@ -14,63 +14,30 @@ import XCTest
 class PublicKeyTests: XCTestCase {
     
     func test_ModwithNumericExp() throws {
-        let pubMod = "B76562EC83AEA03426A5818888B6F93072644B625DC27A0A36221C74CF7F9D999E261913C3D4A5EC0C2501C2FE14A027F992A474095E00F936E7E0ADD9E513B7C8A83ACF45E3798F6ACE5A0EED06F6206E621EE7D686F7595A7B82F1B257FA603545ED2EDBEC29BFDD0BF8DD23C20FC3028C71E7781394FF9CB7084CB37713D5B5613B026991CD626A95F8A8C1B068D016321C7DDAA307257A2A621BCE70AE711B274F91399F21A3E156F0133A7E293FAC58FA9F06B27CE16859534985A6AB619E928F1429EE9B0AFEABFAFDCDFC0EB8351605A173C0AFC1D064E333826F8F328BEFE9D019CEE68764D71D04FE26DC332EBEF4258E1008B13DF7D33F1CE6FF1B"
+        let pubMod = "23151605316550543502091005979812836911164370684487004174214738813978544903785146375701917506595433744091072582939237643945583547667458054661910945584897460416082012661534967779315957456681632959920551890465524906615875878902446435389773955620825647178707773738268428521045116587832180718366396844852118689163869995116433281801055144015845967739399824501794878728801930412178937384219790647423704951462917020761007632240317527188401858434194658455630138653964988844305096403435321437424372043632971868788606169372487327533952180734474969485622112311461886904627464117292630520196415799432779668002129441596116098809627"
         
         let pubExp = "3"
         
-        var modulusStr = pubMod
-        modulusStr = modulusStr.base64UrlToBase64().addPadding()
-        let modulusData = Data(base64Encoded: modulusStr)
-        
-        var exponentStr = pubExp
-        exponentStr = exponentStr.base64UrlToBase64().addPadding()
-        let expData = Data(exponentStr.utf8)
+        let modulusStr1 = Data(pubMod.utf8)
+        let expData = Data(pubExp.utf8)
 
-        
-        let pemGen = PemGenerator(modulusHex: (modulusData?.hexDescription)!, exponentHex: (expData.hexDescription), lengthModulus: (modulusData?.count)!, lengthExponent: (expData.count))
+        let pemGen = PemGenerator(modulusHex: (modulusStr1.hexDescription), exponentHex: (expData.hexDescription), lengthModulus: (modulusStr1.count), lengthExponent: (expData.count))
         let pemString = pemGen.generatePublicPem()
         
         print("pemString : \(pemString)")
 
-        
-        
+    
         let publicKey = try? PublicKey(base64Encoded: pemString)
-        let text = "password!"
-        let clearMessage = try ClearMessage(string: text, using: .utf8)
+        
+        let ciperText = "1234ffffffffffff"
+        let ciperData = Data(ciperText.hexToBase64())
+        let clearMessage = try ClearMessage(data : ciperData)
         let encrypted = try clearMessage.encrypted(with: publicKey!, padding: .PKCS1)
-        print("Encypt : \(encrypted.data)")
-        print("Encypt : \(encrypted.base64String)")
 
+        print("Encypt : \(encrypted.data.hexDescription)")
         XCTAssertNotNil(publicKey)
     }
     
-    func test_ModwithNonNumericExp() throws {
-
-        let pubMod = "r8iqr2NkSIauZmDqMWu/nSrBuF817zDk+ylG9Lhs7CZha2GRpbfJp9HFivIthxuwNSltz4u15fuWLD3X+qjTHt29mOYFGtTXfceWyWOjDPYcrpudGoUtPG8mtHiVljsNTVqi4tbkHHQ8CTPZrQUpkLMuYQCTWyOMrjmcGbWtOcD6uvXZpOg9XMS5/yOPNN0ZlIYLGIpPiDh4ZfI38CzOEZE74hae2QF+fYwW5W5CJ/jBVN+hzhZ3FALFLYdGRtIzFwsQhi/DPJEoHc7bY392xBGmQeL9sqttOHJieXj1DMKEejDq4q6AHwbum95BfHjryPwq0HymnizZXiNx+A4pHQ"
-        
-        let pubExp = "EQ"
-        
-        var modulusStr = pubMod
-        modulusStr = modulusStr.base64UrlToBase64().addPadding()
-        let modulusData = Data(base64Encoded: modulusStr)
-        
-        var exponentStr = pubExp
-        exponentStr = exponentStr.base64UrlToBase64().addPadding()
-        let exponentB64Data = Data(base64Encoded: exponentStr)
-        
-        
-        let pemGen = PemGenerator(modulusHex: (modulusData?.hexDescription)!, exponentHex: (exponentB64Data?.hexDescription)!, lengthModulus: (modulusData?.count)!, lengthExponent: (exponentB64Data?.count)!)
-        let pemString = pemGen.generatePublicPem()
-        
-        print("pemString : \(pemString)")
-        
-        let publicKey = try? PublicKey(base64Encoded: pemString)
-        let textToEncrypt = "password!"
-        let clearMessage = try ClearMessage(string: textToEncrypt, using: .utf8)
-        let encrypted = try clearMessage.encrypted(with: publicKey!, padding: .PKCS1)
-        print("Encypt data : \(encrypted.data)")
-        
-        XCTAssertNotNil(publicKey)
-    }
+   
     
 }
